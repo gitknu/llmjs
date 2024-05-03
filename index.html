@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -39,7 +38,8 @@
       <form onsubmit="event.preventDefault();">
         <div>
             <span>Pick a Model:</span>
-            <progress id="progress" hidden></progress>
+            <progress id="progress" value="0" max="100" hidden></progress>
+            <span id="progressLabel">0%</span>
             <div id="llm_list">
             </div>
             <button id="loadBtn">Load Model</button>
@@ -63,6 +63,7 @@
         let LLMEngine;
 
         let progress = document.getElementById('progress');
+        let progressLabel = document.getElementById('progressLabel');
         let loadButton = document.getElementById('loadBtn');
         let submitButton = document.getElementById('submitBtn');
 
@@ -75,7 +76,7 @@
                 "name": "TinyMistral-248M-SFT-v4 (264 MB)",
                 "link": "https://huggingface.co/Felladrin/TinyMistral-248M-SFT-v4",
                 "model": "https://huggingface.co/rahuldshetty/llm.js/resolve/main/TinyMistral-248M-SFT-v4.Q8_0.gguf",
-                "prompt": "<|im_start|>user\nWho is Sherlock Holmes?<|im_end|>\n<|im_start|>assistant\n",
+                "prompt": "user\nWho is Sherlock Holmes?\nassistant\n",
                 "type": "LLAMA"
             },
             {
@@ -209,10 +210,17 @@
         }
 
         // Event Listener Functions
+        const on_progress = (percent) => {
+            progress.value = percent;
+            progressLabel.textContent = `${percent}%`;
+        }
+
         const on_loaded = () => {
             loadButton.disabled = false;
             submitButton.disabled = false;
             progress.hidden = true;
+            progress.value = 0;
+            progressLabel.textContent = '0%';
         }
 
         const write_result = (line) => {
@@ -232,7 +240,8 @@
                 link,
                 on_loaded,
                 write_result,
-                run_complete
+                run_complete,
+                on_progress // Add on_progress callback
             );
 
             LLMEngine.load_worker();
